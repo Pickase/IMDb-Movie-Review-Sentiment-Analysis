@@ -87,12 +87,6 @@ All models are implemented in **src/models.py**, with training and evaluation or
    ```
 3. **Run the Notebook**  
    Open `notebooks/Nlp-Project-1-PranavJoshi.ipynb` to explore the pipeline.  
-4. **Predict New Reviews**  
-   ```python
-   from src.models import load_model, predict_sentiment
-   model = load_model("outputs/models/lstm_model.h5")
-   print(predict_sentiment(model, "This movie was absolutely fantastic!"))
-   ```
 
 ## Project Structure
 
