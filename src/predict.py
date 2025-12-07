@@ -1,36 +1,27 @@
-import joblib
+# src/predict.py
+
 import pandas as pd
+import joblib
 from .config import MODEL_PATH
 from .features import preprocess_text
 
 _model = None
 
-
 def load_model():
-    """Load and cache the model."""
     global _model
     if _model is None:
         _model = joblib.load(MODEL_PATH)
     return _model
 
-
-def predict_single(text: str):
-    """Predict sentiment for a single review."""
+def predict_single(text):
     model = load_model()
-    processed = preprocess_text(text)
-    df = pd.DataFrame({"review": [processed]})
-    pred = model.predict(df["review"])
-    return pred[0]
+    clean = preprocess_text(text)
+    pred = model.predict([clean])[0]
+    return pred
 
-
-def predict_batch(df: pd.DataFrame):
-    """Predict sentiment for a batch."""
+def predict_batch(df):
     model = load_model()
-
     df = df.copy()
     df["clean_review"] = df["review"].apply(preprocess_text)
-
-    preds = model.predict(df["clean_review"])
-    df["prediction"] = preds
-
+    df["prediction"] = model.predict(df["clean_review"])
     return df
