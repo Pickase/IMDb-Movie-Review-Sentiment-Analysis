@@ -6,18 +6,10 @@ from sklearn.calibration import CalibratedClassifierCV
 from sklearn.pipeline import Pipeline
 
 def build_pipeline():
-    tfidf = TfidfVectorizer(
-        ngram_range=(1, 2),
-        max_features=45000,
-        sublinear_tf=True
-    )
-
-    svm = LinearSVC()
-    calibrated_svm = CalibratedClassifierCV(svm)
-
-    pipeline = Pipeline([
-        ("tfidf", tfidf),
-        ("clf", calibrated_svm)
+    return Pipeline([
+        ("tfidf", TfidfVectorizer(
+            ngram_range=(1,2),
+            max_features=45000,
+            sublinear_tf=True)),
+        ("clf", CalibratedClassifierCV(LinearSVC()))
     ])
-
-    return pipeline
