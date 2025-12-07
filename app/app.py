@@ -15,7 +15,7 @@ from src.predict import predict_single, predict_batch
 # -------------------------
 st.set_page_config(page_title="IMDB Sentiment Analysis", layout="centered")
 
-st.title("🎬 IMDB Movie Review Sentiment Analysis")
+st.title("IMDB Movie Review Sentiment Analysis")
 st.write("Classify reviews as **Positive** or **Negative** using a trained ML model.")
 
 # -------------------------
