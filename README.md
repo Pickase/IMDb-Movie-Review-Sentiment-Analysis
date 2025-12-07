@@ -1,122 +1,154 @@
-# IMDb Movie Review Sentiment Analysis
+# IMDB Movie Review Sentiment Analysis  
+A complete end-to-end Machine Learning project to classify IMDB movie reviews as **Positive** or **Negative** using TF-IDF and Support Vector Machine (SVM).
 
-This repository contains a **from-scratch** implementation of multiple NLP models for classifying IMDb movie reviews as **positive** or **negative**. The project covers data loading, preprocessing, feature engineering (Bag-of-Words, TF-IDF, embeddings), model training (Logistic Regression, Naive Bayes, SVM, Random Forest, LSTM), evaluation, and prediction.
+### 🔗 Live Demo  
+https://imdb-movie-review-sentiment-analysis-wzwpo3nyn77uobfzud7v8m.streamlit.app/#single-review
 
-## Table of Contents
+---
 
-- [Dataset](#dataset)  
-- [Preprocessing](#preprocessing)  
-- [Feature Engineering](#feature-engineering)  
-- [Model Implementation](#model-implementation)  
-- [Results](#results)  
-- [Usage](#usage)  
-- [Project Structure](#project-structure)  
-- [Insights & Observations](#insights--observations)  
-- [License](#license)  
+## 1. Project Overview  
+This project builds a sentiment classification system trained on IMDB movie reviews.  
+The objective is to convert raw text into meaningful numerical representations using NLP preprocessing and TF-IDF vectorization, then train a robust SVM model for sentiment prediction.
 
-## Dataset
+The deployed Streamlit application allows users to:
+- Analyze **single movie reviews**
+- Upload CSV files for **batch sentiment prediction**
 
-- **Source:** IMDb Movie Reviews  
-- **Total Reviews:** 50,000 (25,000 positive, 25,000 negative)  
-- **Labels:** `positive`, `negative`  
+---
 
-Split:  
-- **Training Set:** 40,000 reviews (80%)  
-- **Test Set:** 10,000 reviews (20%)  
+## 2. Features  
+- Full NLP preprocessing pipeline  
+- Text normalization (lowercasing, punctuation removal, contraction fix, etc.)  
+- Stopword removal  
+- Lemmatization  
+- TF-IDF feature extraction  
+- Linear SVM classifier  
+- Streamlit app with two prediction modes:
+  - **Single Review Sentiment Analysis**
+  - **Batch CSV Sentiment Analysis**
 
-## Preprocessing
+---
 
-1. **Text Cleaning**  
-   - Remove HTML tags, punctuation, and special characters  
-2. **Case Normalization**  
-   - Convert all text to lowercase  
-3. **Tokenization**  
-   - Split each review into word tokens  
-4. **Stop-Word Removal**  
-   - Filter out common English stop words  
-5. **Lemmatization & Stemming**  
-   - Normalize tokens to their base forms  
-
-## Feature Engineering
-
-- **Bag-of-Words:** Count occurrences of each token  
-- **TF-IDF:** Compute term frequency–inverse document frequency vectors  
-- **Embeddings:** Pretrained Word2Vec/GloVe or custom Word2Vec  
-
-Additional features:  
-- Review word count  
-- Review character count  
-- Average word length  
-
-## Model Implementation
-
-| Model                  | Key Hyperparameters                        |
-|------------------------|---------------------------------------------|
-| Logistic Regression    | C (inverse regularization strength)         |
-| Multinomial Naive Bayes| alpha (Laplace smoothing)                  |
-| Linear SVM             | C (regularization)                          |
-| Random Forest          | n_estimators, max_depth                    |
-| LSTM (Keras)           | embedding_dim, units, dropout_rate, epochs |
-
-All models are implemented in **src/models.py**, with training and evaluation orchestrated from **notebooks/Nlp-Project-1-PranavJoshi.ipynb**.
-
-## Results
-
-| Metric     | Logistic Regression | Naive Bayes | SVM   | Random Forest | LSTM  |
-|------------|---------------------|-------------|-------|---------------|-------|
-| Accuracy   | 0.88                | 0.85        | 0.87  | 0.86          | 0.89  |
-| Precision  | 0.89                | 0.86        | 0.88  | 0.87          | 0.90  |
-| Recall     | 0.87                | 0.84        | 0.86  | 0.85          | 0.88  |
-| F1-Score   | 0.88                | 0.85        | 0.87  | 0.86          | 0.89  |
-
-  
-    
-  Confusion matrix for the best-performing LSTM model.  
-
-
-## Usage
-
-1. **Clone the repository**  
-   ```bash
-   git clone https://github.com/your-username/imdb-sentiment-analysis.git
-   cd imdb-sentiment-analysis
-   ```
-2. **Install dependencies**  
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. **Run the Notebook**  
-   Open `notebooks/Nlp-Project-1-PranavJoshi.ipynb` to explore the pipeline.  
-
-## Project Structure
-
-```
+## 3. Project Structure
+```bash
 imdb-sentiment-analysis/
-├── data/
-│   └── imdb_reviews.csv
-├── notebooks/
-│   └── Nlp-Project-1-PranavJoshi.ipynb
+│
+├── app/
+│ └── app.py # Streamlit interface
+│
 ├── src/
-│   ├── preprocess.py
-│   ├── features.py
-│   ├── models.py
-│   └── utils.py
-├── outputs/
-│   ├── figures/
-│   │   ├── wordcloud_positive.png
-│   │   ├── wordcloud_negative.png
-│   │   └── confusion_matrix_lstm.png
-│   ├── models/
-│   │   ├── lstm_model.h5
-│   │   └── logistic_regression.pkl
-│   └── metrics.csv
+│ ├── config.py # Paths and global configuration
+│ ├── data_prep.py # Raw → Processed dataset (local only)
+│ ├── features.py # NLP preprocessing functions
+│ ├── pipelines.py # TF-IDF + SVM pipeline
+│ ├── train.py # Training script
+│ ├── evaluate.py # Evaluation script
+│ └── predict.py # Single/Batch prediction functions
+│
+├── data/
+│ ├── raw/Imdb.xlsx # Raw dataset (local only)
+│ └── processed/ # Processed data (ignored in deployment)
+│
+├── models/
+│ └── sentiment_model.pkl # Final trained model
+│
 ├── requirements.txt
 └── README.md
+
 ```
+---
 
-## Insights & Observations
+## 4. Dataset  
+The project uses an IMDB movie review dataset containing reviews and their sentiment labels (positive/negative).  
+Dataset source (Google Sheets link provided by user):
 
-- **Class Balance:** Perfectly balanced dataset mitigates bias.  
-- **Review Length:** Positive reviews average 140 words; negative 90 words.  
-- **Word Importance:** “excellent”, “perfect” signal positive; “boring”, “waste” signal negative.  
-- **Model Comparison:** LSTM outperforms classical models by ~2% F1-score.
+**https://docs.google.com/spreadsheets/d/1gblqnEpfJPCeTX_a5v-4hPKomhF_Ozpq/edit?usp=sharing**
+
+---
+
+## 5. Training Pipeline  
+The training workflow includes:
+
+### **NLP Preprocessing**
+- Lowercasing  
+- Removing punctuation  
+- Removing extra spaces  
+- Expanding contractions  
+- Removing stopwords  
+- Lemmatization  
+
+### **Vectorization**
+- TF-IDF with up to n-grams  
+- Smooth IDF and sublinear TF scaling  
+
+### **Model**
+- Support Vector Machine (LinearSVC)
+
+---
+
+## 6. Performance  
+Typical performance achieved:
+
+| Metric | Score |
+|--------|--------|
+| Accuracy | 88–92% |
+| F1 Score | High for both classes |
+
+---
+
+## 7. Streamlit Application  
+The deployed web app supports:
+
+### **Single Review Mode**  
+Enter a review → model returns **Positive** or **Negative**.
+
+### **Batch Prediction Mode**  
+Upload CSV containing a `review` column → app returns a downloadable CSV with sentiment predictions.
+
+---
+
+## 8. How to Run Locally
+
+### **1. Clone Repository**
+```bash
+git clone <your_repo_link>
+cd imdb-sentiment-analysis
+
+2. Create Virtual Environment
+
+python3 -m venv venv
+source venv/bin/activate   # Linux/Mac
+venv\Scripts\activate      # Windows
+
+3. Install Dependencies
+
+pip install -r requirements.txt
+
+4. Train Model (optional)
+
+python -m src.train
+
+5. Run Streamlit App
+
+streamlit run app/app.py
+
+9. Deployment
+
+The project is deployed using Streamlit Cloud.
+
+Only code + model are deployed.
+Large datasets remain local and are not required for inference.
+10. Future Improvements
+
+    Add probability/confidence scores
+
+    Include visualization dashboards
+
+    Add model comparison (Naive Bayes, Logistic Regression, etc.)
+
+    Integrate database for storing user predictions
+
+11. Author
+
+Pranav Joshi
+BSc IT Student | Data Science & Machine Learning Learner
