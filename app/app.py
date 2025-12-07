@@ -1,5 +1,3 @@
-# app/app.py
-
 import streamlit as st
 import pandas as pd
 import sys, os
@@ -8,48 +6,46 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(ROOT)
 
 from src.predict import predict_single, predict_batch
-from src.config import LOG_PATH, REVIEW_COL
 
-st.set_page_config(page_title="Sentiment Analysis")
+st.set_page_config(page_title="Sentiment Analysis", layout="centered")
 
 st.title("Sentiment Analysis App")
 
-tab1, tab2, tab3 = st.tabs(["Single Review", "Batch Analysis", "Logs"])
+tab1, tab2, tab3 = st.tabs(["Single Review", "Batch Analysis", "About"])
 
-# ---------------- TAB 1 --------------------
+# Single Review
 with tab1:
     st.subheader("Analyze a Single Review")
-
     text = st.text_area("Enter review text:")
 
     if st.button("Analyze"):
-        if text.strip() == "":
-            st.warning("Please enter some text.")
+        if not text.strip():
+            st.warning("Please enter text.")
         else:
-            label, confidence = predict_single(text)
-            st.success(f"Prediction: {label} (Confidence: {confidence:.2f})")
+            pred = predict_single(text)
+            st.success(f"Prediction: {pred}")
 
-# ---------------- TAB 2 --------------------
+# Batch Review
 with tab2:
-    st.subheader("Batch Prediction from CSV")
-
-    file = st.file_uploader("Upload CSV with 'review' column", type=["csv"])
+    st.subheader("Batch Prediction (CSV)")
+    file = st.file_uploader("Upload CSV containing 'review' column", type="csv")
 
     if file:
         df = pd.read_csv(file)
-        result = predict_batch(df)
-        st.dataframe(result)
+        if "review" not in df.columns:
+            st.error("CSV must contain a 'review' column.")
+        else:
+            result = predict_batch(df)
+            st.dataframe(result)
 
-        csv = result.to_csv(index=False).encode()
-        st.download_button("Download Results", csv, "predictions.csv")
+            st.download_button(
+                label="Download Predictions",
+                data=result.to_csv(index=False).encode(),
+                file_name="batch_predictions.csv"
+            )
 
-
-# ---------------- TAB 3 --------------------
+# About
 with tab3:
-    st.subheader("Logs (local)")
-
-    if os.path.exists(LOG_PATH):
-        logs = pd.read_csv(LOG_PATH)
-        st.dataframe(logs)
-    else:
-        st.info("No logs found.")
+    st.write("### IMDB Dataset Source:")
+    st.write("https://docs.google.com/spreadsheets/d/1gblqnEpfJPCeTX_a5v-4hPKomhF_Ozpq/edit?usp=sharing")
+    st.write("This dataset was used only for training. The deployed app does not load the dataset.")
