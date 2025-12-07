@@ -2,50 +2,91 @@ import streamlit as st
 import pandas as pd
 import sys, os
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(ROOT)
+# -------------------------
+# Fix import paths
+# -------------------------
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(ROOT_DIR)
 
 from src.predict import predict_single, predict_batch
 
-st.set_page_config(page_title="Sentiment Analysis", layout="centered")
+# -------------------------
+# Streamlit UI
+# -------------------------
+st.set_page_config(page_title="IMDB Sentiment Analysis", layout="centered")
 
-st.title("Sentiment Analysis App")
+st.title("🎬 IMDB Movie Review Sentiment Analysis")
+st.write("Classify reviews as **Positive** or **Negative** using a trained ML model.")
 
-tab1, tab2, tab3 = st.tabs(["Single Review", "Batch Analysis", "About"])
+# -------------------------
+# Sidebar Navigation
+# -------------------------
+mode = st.sidebar.radio("Choose Mode", ["Single Review", "Batch CSV"])
 
-# Single Review
-with tab1:
-    st.subheader("Analyze a Single Review")
-    text = st.text_area("Enter review text:")
+# -------------------------
+# MODE 1 — Single Prediction
+# -------------------------
+if mode == "Single Review":
+    st.subheader("Single Review")
 
-    if st.button("Analyze"):
-        if not text.strip():
-            st.warning("Please enter text.")
+    review = st.text_area("Enter your movie review:", height=200)
+
+    if st.button("Analyze Sentiment"):
+        if not review.strip():
+            st.warning("Please enter a review before predicting.")
         else:
-            pred = predict_single(text)
-            st.success(f"Prediction: {pred}")
+            label = predict_single(review)
 
-# Batch Review
-with tab2:
-    st.subheader("Batch Prediction (CSV)")
-    file = st.file_uploader("Upload CSV containing 'review' column", type="csv")
+            # Convert model output
+            if label == "positive":
+                label = "Positive"
+            else:
+                label = "Negative"
 
-    if file:
-        df = pd.read_csv(file)
-        if "review" not in df.columns:
-            st.error("CSV must contain a 'review' column.")
-        else:
-            result = predict_batch(df)
-            st.dataframe(result)
+            st.success(f"Sentiment: **{label}**")
 
-            st.download_button(
-                label="Download Predictions",
-                data=result.to_csv(index=False).encode(),
-                file_name="batch_predictions.csv"
-            )
+# -------------------------
+# MODE 2 — Batch Prediction
+# -------------------------
+else:
+    st.subheader("Batch Review")
 
-# About
-with tab3:
-    st.write("### IMDB Dataset Source:")
-    st.write("https://docs.google.com/spreadsheets/d/1gblqnEpfJPCeTX_a5v-4hPKomhF_Ozpq/edit?usp=sharing")
-    st.write("This dataset was used only for training. The deployed app does not load the dataset.")
+    st.write("""
+    **Upload a CSV file** containing a column named **`review`**.
+    The model will classify each review.
+    """)
+
+    uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+
+    if uploaded_file is not None:
+        try:
+            df = pd.read_csv(uploaded_file)
+
+            if "review" not in df.columns:
+                st.error("CSV must contain a column named 'review'.")
+            else:
+                st.write("Preview of uploaded data:")
+                st.dataframe(df.head())
+
+                if st.button("Analyze Batch"):
+                    preds = predict_batch(df["review"].tolist())
+
+                    # Fix label capitalization
+                    preds = ["Positive" if p == "positive" else "Negative" for p in preds]
+
+                    df["sentiment"] = preds
+                    st.success("Batch Sentiment Analysis Completed!")
+
+                    st.dataframe(df)
+
+                    # Download processed file
+                    csv_output = df.to_csv(index=False).encode("utf-8")
+                    st.download_button(
+                        label="Download Predictions CSV",
+                        data=csv_output,
+                        file_name="sentiment_predictions.csv",
+                        mime="text/csv"
+                    )
+
+        except Exception as e:
+            st.error(f"Error processing file: {e}")
